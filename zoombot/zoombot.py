@@ -76,23 +76,24 @@ def new_entry(column_name, entry,row):
         df.to_csv('meetings.csv', index=False)
         
 def join_meeting(meeting_name, meeting_date, meeting_time, meeting_url, meeting_pw):
-    time_left = time_difference(meeting_time)
-    if(time_left == '0:0'):
-        print('Attempting to join ' + meeting_name + '.')
-        wb.open_new(meeting_url)
-        sleep(3)
-        chrome_button = pg.locateOnScreen('./chrome_button.PNG')
-        pg.click(chrome_button)
-        sleep(2)
-        pg.write(meeting_pw)
-        pg.press('enter')
-        sleep(1)
-        no_video_button = pg.locateOnScreen('./no_video_button.PNG')
-        pg.click(no_video_button)
-        pg.sleep(2)
-        join_audio_button = pg.locateOnScreen('./join_audio_button.PNG')
-        pg.click(join_audio_button)
-        print('Joined meeting succesfully!')
+    #time_left = time_difference(meeting_time)
+    #if(time_left == '0:0'):
+    print('Attempting to join ' + meeting_name + '.')
+    wb.open_new(meeting_url)
+    sleep(3)
+    chrome_button = pg.locateOnScreen('./chrome_button.PNG')
+    pg.click(chrome_button)
+    sleep(2)
+    pg.write(meeting_pw)
+    pg.press('enter')
+    sleep(1)
+    no_video_button = pg.locateOnScreen('./no_video_button.PNG')
+    pg.click(no_video_button)
+    pg.sleep(2)
+    join_audio_button = pg.locateOnScreen('./join_audio_button.PNG')
+    pg.click(join_audio_button)
+    print('Joined meeting succesfully!')
+    """    
     else:
         time_left = time_difference(meeting_time)
         hours = time_left[0:int(len(time_left)/2)]
@@ -105,16 +106,16 @@ def join_meeting(meeting_name, meeting_date, meeting_time, meeting_url, meeting_
             time_left = time_difference(meeting_time)
             print('\nJoining '+ meeting_name + ' in ' + hours + ' hours and ' + minutes + ' minutes.')
             sleep(30)
-
+    """
 def intro():
     df = csv_to_df()
 
     print('Hello, this is Zoombot. I can help you join your zoom meetings while you\'re AFK. \n')
     print('Would you like to join a previously saved zoom meeting?\n')
 
-    user_input = str(input('Enter [y] or [n]: ')).lower()
+    user_input = str(input('Enter [y] or [n]: ')).lower().strip()
 
-    # User enters 'n', prompting them to save a new meeting
+    # User enters 'y', show them all the saved meetings
     if(user_input == "y"):
         saved_meetings = []
 
@@ -150,7 +151,7 @@ def intro():
         input_time = str(input('What time is your meeting? (In 24hr format, 5:00pm would be 17:00): '))
         new_entry('TIME', input_time,row)
 
-        input_url = str(input('Please paste the zoom meeting url (make sure theres no extra spaces!): '))
+        input_url = str(input('Please paste the zoom meeting url (make sure theres no extra spaces!): ').strip())
         new_entry('URL', input_url, row)
 
         input_password = str(input('Enter meeting password, if there\'s none press Enter: '))
