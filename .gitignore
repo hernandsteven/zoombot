@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# meetings file
+meetings.csv
+
 # C extensions
 *.so
 
