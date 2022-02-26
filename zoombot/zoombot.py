@@ -22,24 +22,7 @@ def time():
     return dictionary
 
 def time_difference(meeting_time):
-    meeting_time_hour = int(meeting_time[0:2])
-    meeting_time_minute = int(meeting_time[3:5])
-    current_time_hour = int(time()['hour'])
-    current_time_minute = int(time()['minute'])
-
-    hour_difference = str((meeting_time_hour - current_time_hour))
-    minute_difference = str((meeting_time_minute - current_time_minute))
-    if(str(hour_difference[0]) == '-'):
-        return False
-    elif(minute_difference[0] == '-'):
-        print(hour_difference)
-        if(hour_difference == 0):
-            hour_difference = str((int(hour_difference) - 1))
-            minute_difference = str(abs((current_time_minute - int(minute_difference[1]))-59))
-            return ':'.join([hour_difference, minute_difference])
-
-    difference = ':'.join([hour_difference, minute_difference])
-    return difference
+    return None
 
 def sleep(secs):
     t.sleep(secs)
@@ -74,25 +57,40 @@ def new_entry(column_name, entry,row):
         print(row)
         df.at[float(row),column_list[column_list.index(column_name)]] = entry
         df.to_csv('meetings.csv', index=False)
-        
+"""
+Join zoom meeting
+
+:param str meeting_name: The name of the meeting
+:param str meeting_date: The date of the meeting
+:param str meeting_time: The time of the meeting
+:param str meeting url:  The url for zoom meeting
+:param str meeting_pw:   The password for the meeting
+:return type: void
+
+"""
 def join_meeting(meeting_name, meeting_date, meeting_time, meeting_url, meeting_pw):
     #time_left = time_difference(meeting_time)
     #if(time_left == '0:0'):
     print('Attempting to join ' + meeting_name + '.')
     wb.open_new(meeting_url)
     sleep(3)
-    chrome_button = pg.locateOnScreen('./chrome_button.PNG')
+
+    chrome_button = pg.locateOnScreen('./images/chrome_button.PNG')
     pg.click(chrome_button)
-    sleep(2)
+    sleep(5)
+
     pg.write(meeting_pw)
     pg.press('enter')
-    sleep(1)
-    no_video_button = pg.locateOnScreen('./no_video_button.PNG')
+    sleep(3)
+
+    no_video_button = pg.locateOnScreen('./images/no_video_button.PNG')
     pg.click(no_video_button)
     pg.sleep(2)
-    join_audio_button = pg.locateOnScreen('./join_audio_button.PNG')
+
+    join_audio_button = pg.locateOnScreen('./images/join_audio_button.PNG')
     pg.click(join_audio_button)
     print('Joined meeting succesfully!')
+
     """    
     else:
         time_left = time_difference(meeting_time)
@@ -130,9 +128,10 @@ def intro():
 
         if meeting_to_join in saved_meetings:
             meeting_row_index = saved_meetings.index(meeting_to_join)
-            sleep(1)
+            
             join_meeting(
-                meeting_to_join, df.at[meeting_row_index,'DATE'],
+                meeting_to_join, 
+                df.at[meeting_row_index,'DATE'],
                 df.at[meeting_row_index,'TIME'],
                 df.at[meeting_row_index,'URL'],
                 df.at[meeting_row_index,'PASSWORD']
@@ -158,6 +157,8 @@ def intro():
         new_entry('PASSWORD', input_password, row)
 
         print('Awesome, your meeting information is saved!')
+
+        intro()
     else:
         print('Hmm, seems like you entered \"' + user_input + '\". Lets try that again.')
         sleep(1)
@@ -166,6 +167,7 @@ def intro():
 def main():
    csv_to_df()
    intro()
+   
    
 main()
 
