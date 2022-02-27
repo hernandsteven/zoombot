@@ -8,44 +8,44 @@ from os import path
 import pandas as pd
 import csv
 import datetime as dt
-
-def time():
-    """
-        Provide the current time as a dictionary
-
-        :param None
-        :return type: dict
-    """
-    current_date = dt.datetime.now()
-    
-    dictionary =  {
-        "month": current_date.strftime('%m'),
-        "day":   current_date.strftime('%d'),
-        "year": current_date.strftime('%Y'),
-        "hour": current_date.strftime('%H'),
-        "minute": current_date.strftime("%M"),
-    }
-
-    return dictionary
    
+def time_difference(meeting_datetime: object) -> object:
+    """
+    Calculate the difference between current time and meeting time
 
-def time_difference(meeting_time):
+    :param str meeting_datetime: The date and time of the meeting
+    :return type: datetime.timedelta
+
+    """
     current_time_val = dt.datetime.strptime(dt.datetime.now().strftime('%m/%d/%Y %H:%M'),'%m/%d/%Y %H:%M')
-    meeting_time_val = dt.datetime.strptime(meeting_time,"%m/%d/%Y %H:%M")
+    meeting_time_val = dt.datetime.strptime(meeting_datetime,"%m/%d/%Y %H:%M")
     remaining_time = meeting_time_val - current_time_val
     return remaining_time
+   
+def convert_timedelta(duration: object) -> object:
+    """
+    Convert datetime.timedelta object into hours and minutes
 
-    
-def convert_timedelta(duration):
+    :param datetime.timedelta duration: remaining time as timedelta object
+    :return type: int (tuple)
+
+    """
     days, seconds = duration.days, duration.seconds
     hours = days * 24 + seconds // 3600
     minutes = (seconds % 3600) // 60
     return hours, minutes
    
-def sleep(secs):
+def sleep(secs: int) -> None:
     t.sleep(secs)
 
-def csv_to_df():
+def csv_to_df() -> None:
+    """
+    Create meetings.csv if none exists with all required fields. 
+    Converts csv to dataframe.
+
+    :return type: dataframe
+
+    """
     if(path.exists('./meetings.csv')):
         # file exists, read the data
         df = pd.read_csv('meetings.csv')
@@ -63,7 +63,7 @@ def csv_to_df():
         df = pd.read_csv('meetings.csv')
         return df
 
-def new_entry(column_name,entry,row):
+def new_entry(column_name: str, entry: str, row: int) -> None:
     column_list = ["CLASS", "DATETIME", "URL", "PASSWORD"]
     df = csv_to_df()
     #if adding a new row
@@ -71,20 +71,18 @@ def new_entry(column_name,entry,row):
         row = (len(df.index))
         df.at[row,column_name] = str(entry)
         df.to_csv('meetings.csv', index=False)
-        return row
     else:
-        print(row)
         df.at[float(row),column_list[column_list.index(column_name)]] = entry
         df.to_csv('meetings.csv', index=False)
 
-def join_meeting(meeting_name, meeting_datetime, meeting_url, meeting_pw):
+def join_meeting(meeting_name: str, meeting_datetime: str, meeting_url: str, meeting_pw: str) -> None:
     """
     Join zoom meeting
 
-    :param str meeting_name: The name of the meeting
-    :param str meeting_dateime: The date and time of the meeting
-    :param str meeting url:  The url for zoom meeting
-    :param str meeting_pw:   The password for the meeting
+    :param str meeting_name:     The name of the meeting
+    :param str meeting_datetime: The date and time of the meeting
+    :param str meeting url:      The url for zoom meeting
+    :param str meeting_pw:       The password for the meeting
     :return type: void
 
     """
@@ -102,7 +100,7 @@ def join_meeting(meeting_name, meeting_datetime, meeting_url, meeting_pw):
         pg.click(chrome_button)
         sleep(5)
 
-        #If password enter password
+        #Enter password
         pg.write(meeting_pw)
         pg.press('enter')
         sleep(3)
@@ -115,6 +113,7 @@ def join_meeting(meeting_name, meeting_datetime, meeting_url, meeting_pw):
         #Join audio
         join_audio_button = pg.locateOnScreen('./images/join_audio_button.PNG')
         pg.click(join_audio_button)
+
         print('Joined meeting succesfully!')
  
     else:
@@ -132,7 +131,8 @@ def join_meeting(meeting_name, meeting_datetime, meeting_url, meeting_pw):
             sleep(1)
 
         join_meeting(meeting_name, meeting_datetime, meeting_url, meeting_pw)
-def intro():
+
+def intro() -> None:
     df = csv_to_df()
 
     print('Hello, this is Zoombot. I can help you join your zoom meetings while you\'re AFK. \n')
@@ -163,21 +163,25 @@ def intro():
                 df.at[meeting_row_index,'URL'],
                 df.at[meeting_row_index,'PASSWORD']
             )
+        else:
+            print('Meeting does not exist, try again.')
+            sleep(3)
+            intro()
 
     # User enters 'n', prompting them to save a new meeting
     elif(user_input == "n"):
         row = int(len(df.index))
 
-        input_name = str(input('What name would you like to give the meeting? (what class it?): '))
+        input_name = str(input('What name would you like to give the meeting? (ex, \"Math\"): '))
         new_entry('CLASS',input_name,row)
 
         input_datetime = str(input('What day and time is your meeting? (ex, \"8/31/2021 15:23\"): '))
         new_entry('DATETIME', input_datetime,row)
-
-        input_url = str(input('Please paste the zoom meeting url (make sure theres no extra spaces!): ').strip())
+      
+        input_url = str(input('Please paste the zoom meeting url:').strip())
         new_entry('URL', input_url, row)
 
-        input_password = str(input('Enter meeting password, if there\'s none press Enter: '))
+        input_password = str(input('Enter meeting password, if there\'s none press Enter: ').strip())
         new_entry('PASSWORD', input_password, row)
 
         print('Awesome, your meeting information is saved!')
@@ -188,13 +192,10 @@ def intro():
         sleep(1)
         intro()
 
-def main():
-   csv_to_df()
+def run_zoombot():
    intro()
-
-  #print(convert_timedelta(time_difference('02/25/2022 18:30')))
    
    
-main()
+run_zoombot()
 
 
